@@ -100,11 +100,14 @@ class Server:
 			await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 
 			#wait for a response until a timeout and then try again
-			await asyncio.wait_for(self.ack.wait(), 2.0)
-			#check if the request was successfully completed
-			if self.ack.is_set():
-				break
-			else:
+			try
+				await asyncio.wait_for(self.ack.wait(), 2.0)
+				#check if the request was successfully completed
+				if self.ack.is_set():
+					break
+				else:
+					messageObj.findOwner(self)
+			except asyncio.TimeoutError as te:
 				messageObj.findOwner(self)
 		self.ack.clear()
 
