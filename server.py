@@ -191,8 +191,9 @@ class Server:
 
 		client.close()
 		del self.connections[addr]
+		print("OLD RING: {}".format(self.ring))
 		self.deleteRing(socket.gethostbyaddr(addr)[0])
-		print(self.ring)
+		print("NEW RING: {}".format(self.ring))
 		print('Connection Closed: {}'.format(addr))
 
 class ServerRequestHandlers:
