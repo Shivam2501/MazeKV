@@ -12,7 +12,7 @@ class Server:
 
 	def __init__(self, loop):
 		self.loop = loop
-		self.connections = []
+		self.connections = {}
 
 		self.sock = socket.socket()
 		self.sock.setblocking(False)
@@ -28,9 +28,9 @@ class Server:
 		while True:
 			client, addr = await self.loop.sock_accept(self.sock)
 			client.setblocking(False)
-			self.connections.append(client)
+			self.connections[addr[0]] = client
 			print('New Connection: {}'.format(addr[0]))
-			self.loop.create_task(self.receive_data(client))
+			self.loop.create_task(self.receive_data(client, addr[0]))
 
 	async def create_connection(self):
 		for host in self.hostnames:
@@ -47,22 +47,22 @@ class Server:
 				    s.close()
 				    continue
 				s.setblocking(False)
-				self.connections.append(s)
+				self.connections[socket.gethostbyname(host)] = s
 				self.loop.create_task(self.receive_data(s))
 
 	async def send_data(self, message):
 		for client in self.connections:
 			self.loop.sock_sendall(client, message)
 
-	async def receive_data(self, client):
+	async def receive_data(self, client, addr):
 		while True:
 			data = await self.loop.sock_recv(client, 1024)
 			if not data:
 				break	#connecion closed
 			print(data)
 		client.close()
-		self.connections.remove(client)
-		print('Connection Closed: {}'.format(socket.gethostbyname(client)))
+		del self.connections[addr]
+		print('Connection Closed: {}'.format(addr))
 
 if __name__ == "__main__":
 	loop = asyncio.get_event_loop()
