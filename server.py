@@ -34,7 +34,7 @@ class Server:
 
 	async def create_connection(self):
 		for host in self.hostnames:
-			if host != socket.gethostname():
+			if host != socket.gethostname() and socket.gethostbyname(host) not in self.connections:
 				try:
 					s = socket.socket()
 					s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
