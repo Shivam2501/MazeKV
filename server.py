@@ -41,7 +41,7 @@ class Server:
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
 
-	async def addRing(self, node):
+	def addRing(self, node):
 		nodeNumber = int(node.split('-')[3].split('.')[0])
 		predecessor = nodeNumber - 1
 		while True:
@@ -63,7 +63,7 @@ class Server:
 			client.setblocking(False)
 			self.connections[addr[0]] = client
 			print('New Connection: {}'.format(addr[0]))
-			await self.addRing(socket.gethostbyaddr(addr[0])[0])
+			self.addRing(socket.gethostbyaddr(addr[0])[0])
 			self.loop.create_task(self.receive_data(client, addr[0]))
 
 	async def create_connection(self):
@@ -82,7 +82,7 @@ class Server:
 				    continue
 				s.setblocking(False)
 				self.connections[socket.gethostbyname(host)] = s
-				await self.addRing(host)
+				self.addRing(host)
 				self.loop.create_task(self.receive_data(s, socket.gethostbyname(host)))
 
 	async def send_data(self, messageObj):
