@@ -60,12 +60,10 @@ class ClientRequestHandlers:
 		#check if client is the owner of the key
 		if messageObj.owner == server.hostNumber:
 			#call server
-			print("My Command: {}".format(messageObj.key))
 			await getattr(self.serverRPC, 'handle_{}'.format(messageObj.type))(messageObj, server)
 			print("SET OK", flush=True)
 		else:
 			#send message to owner
-			print("Command: {}".format(messageObj.key))
 			await server.send_data(messageObj)
 
 	async def handle_GET(self, messageObj, server):

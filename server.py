@@ -139,7 +139,7 @@ class Server:
 
 			#wait for a response until a timeout and then try again
 			try:
-				await asyncio.wait_for(self.ack.wait(), 2.0)
+				await asyncio.wait_for(self.ack.wait(), 3.0)
 				#check if the request was successfully completed
 				if self.ack.is_set():
 					break
@@ -204,26 +204,26 @@ class ServerRequestHandlers:
 			server.storage[messageObj.owner] = {}
 		server.storage[messageObj.owner][messageObj.key] = messageObj.value
 
-		#if owner send to replicas
-		if messageObj.owner == server.hostNumber:
-			msg = pickle.dumps(messageObj)
-			while True:
-				successor = server.find_successor(messageObj.owner)
-				host = server.hostnames[successor - 1]
-				try:
-					await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-					break
-				except OSError as oe:
-					messageObj.findOwner(server)
+		# #if owner send to replicas
+		# if messageObj.owner == server.hostNumber:
+		# 	msg = pickle.dumps(messageObj)
+		# 	while True:
+		# 		successor = server.find_successor(messageObj.owner)
+		# 		host = server.hostnames[successor - 1]
+		# 		try:
+		# 			await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+		# 			break
+		# 		except OSError as oe:
+		# 			messageObj.findOwner(server)
 
-			while True:
-				predecessor = server.find_predecessor(messageObj.owner)
-				host = server.hostnames[predecessor - 1]
-				try:
-					await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-					break
-				except OSError as oe:
-					messageObj.findOwner(server)
+		# 	while True:
+		# 		predecessor = server.find_predecessor(messageObj.owner)
+		# 		host = server.hostnames[predecessor - 1]
+		# 		try:
+		# 			await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+		# 			break
+		# 		except OSError as oe:
+		# 			messageObj.findOwner(server)
 
 	async def handle_GET(self, messageObj, server):
 		#find the key and return
