@@ -95,7 +95,7 @@ class Server:
 		while True:
 			self.ack.clear()
 			#send data to the owner of the key
-			host = self.hostnames[messageObj.owner]
+			host = self.hostnames[messageObj.owner - 1]
 			msg = pickle.dumps(messageObj)
 			await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 
