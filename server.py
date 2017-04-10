@@ -10,6 +10,8 @@ class Server:
 				 "sp17-cs425-g20-04.cs.illinois.edu", "sp17-cs425-g20-05.cs.illinois.edu", "sp17-cs425-g20-06.cs.illinois.edu",
 				 "sp17-cs425-g20-07.cs.illinois.edu", "sp17-cs425-g20-08.cs.illinois.edu"]
 
+	sendQueue = asyncio.Queue()
+
 	def __init__(self, loop):
 		self.loop = loop
 		self.connections = {}
@@ -50,7 +52,8 @@ class Server:
 				self.connections[socket.gethostbyname(host)] = s
 				self.loop.create_task(self.receive_data(s, socket.gethostbyname(host)))
 
-	async def send_data(self, message):
+	async def send_data(self):
+		message = await sendQueue.get()
 		for client in self.connections:
 			self.loop.sock_sendall(client, message)
 
@@ -64,7 +67,7 @@ class Server:
 		del self.connections[addr]
 		print('Connection Closed: {}'.format(addr))
 
-if __name__ == "__main__":
-	loop = asyncio.get_event_loop()
-	Server(loop)
-	loop.run_forever()
+# if __name__ == "__main__":
+# 	loop = asyncio.get_event_loop()
+# 	Server(loop)
+# 	loop.run_forever()
