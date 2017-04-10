@@ -25,6 +25,7 @@ class Server:
 
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
+		self.loop.create_task(self.send_data())
 
 	async def receive_connections(self):
 		while True:
@@ -53,7 +54,7 @@ class Server:
 				self.loop.create_task(self.receive_data(s, socket.gethostbyname(host)))
 
 	async def send_data(self):
-		message = await sendQueue.get()
+		message = await self.sendQueue.get()
 		for client in self.connections:
 			self.loop.sock_sendall(client, message)
 
