@@ -170,13 +170,13 @@ class Server:
 
 			elif msg.type == "SET":
 				await getattr(self.serverRPC, 'handle_{}'.format(msg.type))(msg, self)
-				if msgObj.owner == self.hostNumber:
+				if msg.owner == self.hostNumber:
 					#create an ACK msg with msg = 'SET OK' and send it back
 					msgObj = InputMessage('ACK SET OK')
 				else:
 					msgObj = InputMessage('REPLICA ACK')
-				msg = pickle.dumps(msgObj)
-				await self.loop.sock_sendall(client, struct.pack('>I', len(msg)) + msg)
+				new_msg = pickle.dumps(msgObj)
+				await self.loop.sock_sendall(client, struct.pack('>I', len(new_msg)) + new_msg)
 
 			elif msg.type == "GET":
 				value = await getattr(self.serverRPC, 'handle_{}'.format(msg.type))(msg, self)
