@@ -207,21 +207,21 @@ class ServerRequestHandlers:
 			msg = pickle.dumps(messageObj)
 			while True:
 				successor = server.find_successor(messageObj.owner)
-				host = self.hostnames[successor - 1]
+				host = server.hostnames[successor - 1]
 				try:
 					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 					break
 				except OSError as oe:
-					messageObj.findOwner(self)
+					messageObj.findOwner(server)
 
 			while True:
 				predecessor = server.find_predecessor(messageObj.owner)
-				host = self.hostnames[predecessor - 1]
+				host = server.hostnames[predecessor - 1]
 				try:
 					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 					break
 				except OSError as oe:
-					messageObj.findOwner(self)
+					messageObj.findOwner(server)
 
 	async def handle_GET(self, messageObj, server):
 		#find the key and return
