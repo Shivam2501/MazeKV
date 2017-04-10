@@ -13,6 +13,9 @@ class InputMessage:
 			self.key = message.split(' ')[1]
 		elif self.type == "OWNERS":
 			self.key = message.split(' ')[1]
+		elif self.type == "ACK":
+			self.key = self.message.split(' ')[1]
+			self.value = message.split(message.split(' ')[1])[1].strip()
 		else:
 			self.key = self.message
 
