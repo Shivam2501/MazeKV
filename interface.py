@@ -25,7 +25,7 @@ async def interface(loop):
 		if command == 'exit':
 			print("Exiting......")
 			break
-			
+
 		#call request handler based on message type
 		msgObj = InputMessage(command)
 		msgObj.findOwner(server)
@@ -39,6 +39,7 @@ class ClientRequestHandlers:
 
 	async def handle_SET(self, messageObj, server):
 		#check if client is the owner of the key
+		print("OWNER: {} HOST: {}".format(messageObj.owner, server.hostNumber))
 		if messageObj.owner == server.hostNumber:
 			#call server
 			await getattr(self.serverRPC, 'handle_{}'.format(messageObj.type))(messageObj, server)
@@ -89,7 +90,7 @@ class ClientRequestHandlers:
 
 	async def handle_LIST_LOCAL(self, messageObj, server):
 		#find all the stored keys and return
-		for host in server.storage.keys():
+		for host in server.storage.values():
 			for key in host.keys():
 				print(key, flush=True)
 		print('END LIST', flush=True)
