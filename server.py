@@ -27,6 +27,7 @@ class Server:
 	async def receive_connections(self):
 		while True:
 			client, addr = await self.loop.sock_accept(self.sock)
+			client.setblocking(False)
 			self.connections.append(client)
 			print('New Connection: {}'.format(addr[0]))
 			self.loop.create_task(self.receive_data(client))
@@ -40,16 +41,17 @@ class Server:
 				except socket.error as msg:
 					continue
 				# Try to establish connection with a host
-				try:
-					await self.loop.sock_connect(s, (socket.gethostbyname(host), self.PORT))
-				except ConnectionRefusedError:
-					s.close()
-					continue
 				# try:
-				# 	s.connect((socket.gethostbyname(host), self.PORT))
-				# except socket.error as msg:
-				#     s.close()
-				#     continue
+				# 	await self.loop.sock_connect(s, (socket.gethostbyname(host), self.PORT))
+				# except ConnectionRefusedError:
+				# 	s.close()
+				# 	continue
+				try:
+					s.connect((socket.gethostbyname(host), self.PORT))
+				except socket.error as msg:
+				    s.close()
+				    continue
+				s.setblocking(False)
 				self.connections.append(s)
 				self.loop.create_task(self.receive_data(s))
 
