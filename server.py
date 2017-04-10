@@ -53,7 +53,7 @@ class Server:
 				self.connections[socket.gethostbyname(host)] = s
 				self.loop.create_task(self.receive_data(s, socket.gethostbyname(host)))
 
-	async def sendMessage():
+	async def sendMessage(self):
 		return await sendQueue.get()
 
 	async def send_data(self):
