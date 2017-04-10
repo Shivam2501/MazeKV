@@ -40,7 +40,11 @@ class Server:
 				except socket.error as msg:
 					continue
 				# Try to establish connection with a host
-				await self.loop.sock_connect(s, (socket.gethostbyname(host), self.PORT))
+				try:
+					await self.loop.sock_connect(s, (socket.gethostbyname(host), self.PORT))
+				except ConnectionRefusedError:
+					s.close()
+					continue
 				# try:
 				# 	s.connect((socket.gethostbyname(host), self.PORT))
 				# except socket.error as msg:
