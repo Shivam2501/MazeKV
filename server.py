@@ -149,10 +149,6 @@ class Server:
 				messageObj.findOwner(self)
 		self.ack.clear()
 
-	# async def broadcast(self, message):
-	# 	for client in self.connections.values():
-	# 		self.loop.sock_sendall(client, message.encode('utf8'))
-
 	async def receive_data(self, client, addr):
 		while True:
 			data = await self.loop.sock_recv(client, 4)
@@ -217,22 +213,22 @@ class ServerRequestHandlers:
 		if messageObj.owner == server.hostNumber:
 			msg = pickle.dumps(messageObj)
 			while True:
-					successor = server.find_successor(messageObj.owner)
-					host = server.hostnames[successor - 1]
-					try:
-						await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-						break
-					except OSError as oe:
-						messageObj.findOwner(server)
+				successor = server.find_successor(messageObj.owner)
+				host = server.hostnames[successor - 1]
+				try:
+					await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					break
+				except OSError as oe:
+					messageObj.findOwner(server)
 
 			while True:
-					predecessor = server.find_predecessor(messageObj.owner)
-					host = server.hostnames[predecessor - 1]
-					try:
-						await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-						break
-					except OSError as oe:
-						messageObj.findOwner(server)
+				predecessor = server.find_predecessor(messageObj.owner)
+				host = server.hostnames[predecessor - 1]
+				try:
+					await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					break
+				except OSError as oe:
+					messageObj.findOwner(server)
 
 	async def handle_GET(self, messageObj, server):
 		#find the key and return
