@@ -20,5 +20,5 @@ class InputMessage:
 		self.hashkey = int(h, base=16) % 10
 
 	def findOwner(self, server):
-		print(self.ring.values)
+		print(server.ring.values)
 		self.owner = server.ring[self.hashkey]
