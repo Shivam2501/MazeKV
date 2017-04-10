@@ -33,7 +33,7 @@ async def interface(loop):
 
 			original_stdout = sys.stdout
 			outputfile = open(file2, 'w')
-			#sys.stdout = outputfile
+			sys.stdout = outputfile
 
 			with open(file1) as inputfile:
 				for line in inputfile:
