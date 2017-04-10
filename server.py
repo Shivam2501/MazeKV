@@ -54,7 +54,7 @@ class Server:
 				if predecessor == nodeNumber:
 					break
 		#update ring
-		for i in range(predecessor+1, nodeNumber):
+		for i in range(predecessor+1, nodeNumber+1):
 			self.ring[i] = nodeNumber
 
 	async def receive_connections(self):
