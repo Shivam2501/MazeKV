@@ -22,7 +22,7 @@ class Server:
 		self.sock.listen(len(self.hostnames)-1)
 
 		self.loop.create_task(self.receive_connections())
-		self.loop.create_task(self.create_connection())
+		self.loop.run_until_complete(self.create_connection())
 
 	async def receive_connections(self):
 		while True:
@@ -38,17 +38,15 @@ class Server:
 					s = socket.socket()
 					s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 				except socket.error as msg:
-					s = False
 					continue
 				# Try to establish connection with a host
 				try:
 					s.connect((socket.gethostbyname(host), self.PORT))
 				except socket.error as msg:
 				    s.close()
-				    s = False
 				    continue
 				self.connections.append(s)
-				asyncio.ensure_future(self.receive_data(s))
+				self.loop.create_task(self.receive_data(s))
 
 	def send_data(self, message):
 		for client in self.connections:
