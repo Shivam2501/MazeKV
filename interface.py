@@ -14,7 +14,7 @@ async def outputMessage(loop):
 	return
 
 async def interface(loop):
-	Server(loop)
+	server = Server(loop)
 
 	inputSymbol = '>>> '
 	loop.add_reader(sys.stdin, addToQueue)
@@ -25,8 +25,8 @@ async def interface(loop):
 		print(inputSymbol, end='', flush=True)
 		command = await inputMessage(loop)
 		#print('GOT: ' + command, flush=True)
-		Server.sendQueue.put(command)
-		
+		server.sendQueue.put(command)
+
 		if command == 'exit':
 			print("Exiting......")
 			break
