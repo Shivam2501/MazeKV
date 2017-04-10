@@ -21,7 +21,6 @@ class Server:
 		self.storage = {}
 
 		self.ack = asyncio.Event()
-		self.replica_ack = asyncio.Event()
 
 		hostname = socket.gethostname().split('-')
 		self.hostNumber = int(hostname[3].split('.')[0])
@@ -198,8 +197,6 @@ class Server:
 					msgObj = InputMessage('ACK NOT FOUND')
 				msg = pickle.dumps(msgObj)
 				await self.loop.sock_sendall(client, struct.pack('>I', len(msg)) + msg)
-			elif msg.type == "REPLICA":
-				self.replica_ack.set()
 
 		client.close()
 		del self.connections[addr]
@@ -220,8 +217,6 @@ class ServerRequestHandlers:
 		if messageObj.owner == server.hostNumber:
 			msg = pickle.dumps(messageObj)
 			while True:
-				server.replica_ack.clear()
-				while True:
 					successor = server.find_successor(messageObj.owner)
 					host = server.hostnames[successor - 1]
 					try:
@@ -230,20 +225,7 @@ class ServerRequestHandlers:
 					except OSError as oe:
 						messageObj.findOwner(server)
 
-				#wait for a response until a timeout and then try again
-				try:
-					await asyncio.wait_for(server.replica_ack.wait(), 3.0)
-					#check if the request was successfully completed
-					if server.replica_ack.is_set():
-						break
-				except asyncio.TimeoutError as te:
-					continue
-
-			server.replica_ack.clear()
-
 			while True:
-				server.replica_ack.clear()
-				while True:
 					predecessor = server.find_predecessor(messageObj.owner)
 					host = server.hostnames[predecessor - 1]
 					try:
@@ -251,16 +233,6 @@ class ServerRequestHandlers:
 						break
 					except OSError as oe:
 						messageObj.findOwner(server)
-
-				try:
-					await asyncio.wait_for(server.replica_ack.wait(), 3.0)
-					#check if the request was successfully completed
-					if server.replica_ack.is_set():
-						break
-				except asyncio.TimeoutError as te:
-					continue
-
-			server.replica_ack.clear()
 
 	async def handle_GET(self, messageObj, server):
 		#find the key and return
