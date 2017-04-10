@@ -62,7 +62,7 @@ class Server:
 			print(data)
 		client.close()
 		self.connections.remove(client)
-		print('Connection Closed: {}'.format((socket.gethostbyname(client)))
+		print('Connection Closed: {}'.format(socket.gethostbyname(host)))
 
 if __name__ == "__main__":
 	loop = asyncio.get_event_loop()
