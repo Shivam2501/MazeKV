@@ -181,9 +181,19 @@ class Server:
 			elif msg.type == "GET":
 				value = await getattr(self.serverRPC, 'handle_{}'.format(msg.type))(msg, self)
 
-				#create an ACK msg with msg = 'SET OK' and send it back
+				#create an ACK msg with msg = 'GET VALUE' and send it back
 				if value:
 					msgObj = InputMessage('ACK FOUND: ' + value)
+				else:
+					msgObj = InputMessage('ACK NOT FOUND')
+				msg = pickle.dumps(msgObj)
+				await self.loop.sock_sendall(client, struct.pack('>I', len(msg)) + msg)
+			elif msg.type == "OWNERS":
+				value = await getattr(self.serverRPC, 'handle_{}'.format(msg.type))(msg, self)
+
+				#create an ACK msg with msg = 'owners id' and send it back
+				if value:
+					msgObj = InputMessage('ACK {}'.format(value))
 				else:
 					msgObj = InputMessage('ACK NOT FOUND')
 				msg = pickle.dumps(msgObj)
@@ -259,3 +269,16 @@ class ServerRequestHandlers:
 		if messageObj.key not in server.storage[messageObj.owner]:
 			return False
 		return server.storage[messageObj.owner][messageObj.key]
+
+	async def handle_OWNERS(self, messageObj, server):
+		if messageObj.owner == server.hostNumber:
+			#find the key and return successor and predecessor
+			if messageObj.owner not in server.storage:
+				return False
+			if messageObj.key not in server.storage[messageObj.owner]:
+				return False
+			successor = server.find_successor(messageObj.owner)
+			predecessor = server.find_predecessor(messageObj.owner)
+			return '{} {} {}'.format(predecessor, messageObj.owner, successor)
+		else:
+			return False

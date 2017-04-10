@@ -80,31 +80,43 @@ class ClientRequestHandlers:
 			await server.send_data(messageObj)
 
 	async def handle_OWNERS(self, messageObj, server):
-		#return all owners of the key from dictionary
-		#find successor
-		successor = messageObj.owner + 1
-		while True:
-			if successor in server.ring.values():
-				break
+		#check if client is the owner of the key
+		if messageObj.owner == server.hostNumber:
+			#call server
+			value = await getattr(self.serverRPC, 'handle_{}'.format(messageObj.type))(messageObj, server)
+			if value:
+				print(value)
 			else:
-				successor += 1
-				if successor > 10:
-					successor = 1
-				if successor == messageObj.owner:
-					break
-		
-		predecessor = messageObj.owner - 1
-		while True:
-			if predecessor in server.ring.values():
-				break
-			else:
-				predecessor -= 1
-				if predecessor <= 0:
-					predecessor = 10
-				if predecessor == messageObj.owner:
-					break
+				print('NOT FOUND', flush=True)
+		else:
+			#send message to owner
+			await server.send_data(messageObj)
 
-		print('{} {} {}'.format(messageObj.owner, successor, predecessor), flush=True)
+		# #return all owners of the key from dictionary
+		# #find successor
+		# successor = messageObj.owner + 1
+		# while True:
+		# 	if successor in server.ring.values():
+		# 		break
+		# 	else:
+		# 		successor += 1
+		# 		if successor > 10:
+		# 			successor = 1
+		# 		if successor == messageObj.owner:
+		# 			break
+		
+		# predecessor = messageObj.owner - 1
+		# while True:
+		# 	if predecessor in server.ring.values():
+		# 		break
+		# 	else:
+		# 		predecessor -= 1
+		# 		if predecessor <= 0:
+		# 			predecessor = 10
+		# 		if predecessor == messageObj.owner:
+		# 			break
+
+		# print('{} {} {}'.format(messageObj.owner, successor, predecessor), flush=True)
 
 	async def handle_LIST_LOCAL(self, messageObj, server):
 		#find all the stored keys and return
