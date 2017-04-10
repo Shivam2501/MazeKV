@@ -11,6 +11,10 @@ env.user = "bharuka2"
 # 	local('git add . && git commit -m "%s"' % msg, capture=False)
 # 	local('git push -u origin master', capture=False)
 
+def clone():
+	with cd('~'):
+		run('git clone https://bharuka2@gitlab.engr.illinois.edu/bharuka2/distributed_mp2.git')
+
 def deploy():
 	with cd('/home/bharuka2/distributed_mp2'):
 		run('git pull')

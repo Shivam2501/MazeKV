@@ -29,7 +29,7 @@ class Server:
 			client, addr = await self.loop.sock_accept(self.sock)
 			self.connections.append(client)
 			print('New Connection: {}'.format(addr[0]))
-			self.create_task(receive_data(client))
+			self.loop.create_task(receive_data(client))
 
 	async def create_connection(self):
 		for host in self.hostnames:
@@ -48,12 +48,12 @@ class Server:
 				    s = False
 				    continue
 				self.connections.append(s)
-				self.create_task(receive_data(s))
+				self.loop.create_task(receive_data(s))
 
 	async def send_data(self, message):
 		for client in self.connections:
 			self.loop.sock_sendall(client, message)
-			
+
 	async def receive_data(self, client):
 		while True:
 			data = await self.loop.sock_recv(client, 1024)
