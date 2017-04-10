@@ -13,6 +13,8 @@ class InputMessage:
 			self.key = message.split(' ')[1]
 		elif self.type == "OWNERS":
 			self.key = message.split(' ')[1]
+		else:
+			self.key = self.message
 
 		h = hashlib.md5(self.key.encode()).hexdigest()
 		self.hashkey = int(h, base=16) % 10
