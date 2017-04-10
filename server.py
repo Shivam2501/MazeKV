@@ -23,7 +23,6 @@ class Server:
 
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
-		self.loop.create_task(self.send_data())
 
 	async def receive_connections(self):
 		while True:
