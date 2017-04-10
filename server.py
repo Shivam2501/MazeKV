@@ -48,7 +48,7 @@ class Server:
 				    continue
 				s.setblocking(False)
 				self.connections[socket.gethostbyname(host)] = s
-				self.loop.create_task(self.receive_data(s))
+				self.loop.create_task(self.receive_data(s, socket.gethostbyname(host)))
 
 	async def send_data(self, message):
 		for client in self.connections:
