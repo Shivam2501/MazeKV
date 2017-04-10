@@ -23,8 +23,6 @@ class Server:
 
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
-		
-		self.loop.run_until_complete(self.send_data("Hello World!"))
 
 	async def receive_connections(self):
 		while True:
@@ -63,6 +61,8 @@ class Server:
 				break	#connecion closed
 			print(data)
 		client.close()
+		self.connections.remove(client)
+		print('Connection Closed: {}'.format(client))
 
 if __name__ == "__main__":
 	loop = asyncio.get_event_loop()
