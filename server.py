@@ -23,6 +23,8 @@ class Server:
 
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
+		
+		self.loop.run_until_complete(self.send_data("Hello World!"))
 
 	async def receive_connections(self):
 		while True:
@@ -41,11 +43,6 @@ class Server:
 				except socket.error as msg:
 					continue
 				# Try to establish connection with a host
-				# try:
-				# 	await self.loop.sock_connect(s, (socket.gethostbyname(host), self.PORT))
-				# except ConnectionRefusedError:
-				# 	s.close()
-				# 	continue
 				try:
 					s.connect((socket.gethostbyname(host), self.PORT))
 				except socket.error as msg:
@@ -55,7 +52,7 @@ class Server:
 				self.connections.append(s)
 				self.loop.create_task(self.receive_data(s))
 
-	def send_data(self, message):
+	async def send_data(self, message):
 		for client in self.connections:
 			self.loop.sock_sendall(client, message)
 
