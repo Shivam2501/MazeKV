@@ -22,7 +22,7 @@ async def interface(loop):
 	while True:
 		print(inputSymbol, end='', flush=True)
 		command = await inputMessage(loop)
-		#print('GOT: ' + command, flush=True)
+
 		await server.send_data(command)
 
 		if command == 'exit':

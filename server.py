@@ -8,11 +8,18 @@ class Server:
 
 	hostnames = ["sp17-cs425-g20-01.cs.illinois.edu", "sp17-cs425-g20-02.cs.illinois.edu", "sp17-cs425-g20-03.cs.illinois.edu",
 				 "sp17-cs425-g20-04.cs.illinois.edu", "sp17-cs425-g20-05.cs.illinois.edu", "sp17-cs425-g20-06.cs.illinois.edu",
-				 "sp17-cs425-g20-07.cs.illinois.edu", "sp17-cs425-g20-08.cs.illinois.edu"]
+				 "sp17-cs425-g20-07.cs.illinois.edu", "sp17-cs425-g20-08.cs.illinois.edu", "sp17-cs425-g20-09.cs.illinois.edu", 
+				 "sp17-cs425-g20-10.cs.illinois.edu"]
 
 	def __init__(self, loop):
 		self.loop = loop
 		self.connections = {}
+
+		hostname = socket.gethostname().split('-')
+		self.hostNumber = int(hostname[3].split('.')[0])
+		self.ring = {i:self.hostNumber for i in range(1,11)}
+
+		self.stabilize = True
 
 		self.sock = socket.socket()
 		self.sock.setblocking(False)
@@ -30,7 +37,6 @@ class Server:
 			client.setblocking(False)
 			self.connections[addr[0]] = client
 			print('\nNew Connection: {}'.format(addr[0]))
-			print('\n>>> ')
 			self.loop.create_task(self.receive_data(client, addr[0]))
 
 	async def create_connection(self):
@@ -60,11 +66,10 @@ class Server:
 			data = await self.loop.sock_recv(client, 1024)
 			if not data:
 				break	#connecion closed
-			print('\n'+data)
+			print(data)
 		client.close()
 		del self.connections[addr]
 		print('\nConnection Closed: {}'.format(addr))
-		print('\n>>> ')
 
 # if __name__ == "__main__":
 # 	loop = asyncio.get_event_loop()
