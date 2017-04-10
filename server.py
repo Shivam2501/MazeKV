@@ -51,7 +51,7 @@ class Server:
 				self.loop.create_task(self.receive_data(s, socket.gethostbyname(host)))
 
 	async def send_data(self, message):
-		for client in self.connections:
+		for client in self.connections.values():
 			self.loop.sock_sendall(client, message.encode('utf8'))
 
 	async def receive_data(self, client, addr):
