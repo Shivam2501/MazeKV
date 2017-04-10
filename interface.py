@@ -26,11 +26,30 @@ async def interface(loop):
 			print("Exiting......")
 			break
 
-		#call request handler based on message type
-		msgObj = InputMessage(command)
-		msgObj.findOwner(server)
+		#check if BATCH command
+		if command.split(' ')[0] == "BATCH":
+			file1 = command.split(' ')[1]
+			file2 = command.split(command.split(' ')[1])[1].strip()
 
-		await getattr(clientRPC, 'handle_{}'.format(msgObj.type))(msgObj, server)
+			original_stdout = sys.stdout
+			outputfile = open(file2, 'w')
+			#sys.stdout = outputfile
+
+			with open(file1) as inputfile:
+				for line in inputfile:
+					msgObj = InputMessage(line.strip())
+					msgObj.findOwner(server)
+
+					await getattr(clientRPC, 'handle_{}'.format(msgObj.type))(msgObj, server)
+
+			sys.stdout = original_stdout
+			outputfile.close()
+		else:
+			#call request handler based on message type
+			msgObj = InputMessage(command)
+			msgObj.findOwner(server)
+
+			await getattr(clientRPC, 'handle_{}'.format(msgObj.type))(msgObj, server)
 
 class ClientRequestHandlers:
 
@@ -39,7 +58,6 @@ class ClientRequestHandlers:
 
 	async def handle_SET(self, messageObj, server):
 		#check if client is the owner of the key
-		print("OWNER: {} HOST: {}".format(messageObj.owner, server.hostNumber))
 		if messageObj.owner == server.hostNumber:
 			#call server
 			await getattr(self.serverRPC, 'handle_{}'.format(messageObj.type))(messageObj, server)
@@ -61,7 +79,7 @@ class ClientRequestHandlers:
 			#send message to owner
 			await server.send_data(messageObj)
 
-	async def handle_OWNER(self, messageObj, server):
+	async def handle_OWNERS(self, messageObj, server):
 		#return all owners of the key from dictionary
 		#find successor
 		successor = messageObj.owner + 1
@@ -74,7 +92,7 @@ class ClientRequestHandlers:
 					successor = 1
 				if successor == messageObj.owner:
 					break
-
+		
 		predecessor = messageObj.owner - 1
 		while True:
 			if predecessor in server.ring.values():
@@ -86,7 +104,7 @@ class ClientRequestHandlers:
 				if predecessor == messageObj.owner:
 					break
 
-		print('{} {} {}'.format(messageObj.owner, successor, predecessor))
+		print('{} {} {}'.format(messageObj.owner, successor, predecessor), flush=True)
 
 	async def handle_LIST_LOCAL(self, messageObj, server):
 		#find all the stored keys and return

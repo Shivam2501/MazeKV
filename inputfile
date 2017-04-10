@@ -1,0 +1,6 @@
+SET x 391
+GET x
+OWNERS course_name
+SET name shivam bharuka
+GET name
+OWNERS name
