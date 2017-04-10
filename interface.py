@@ -25,7 +25,7 @@ async def interface(loop):
 		print(inputSymbol, end='', flush=True)
 		command = await inputMessage(loop)
 		#print('GOT: ' + command, flush=True)
-		server.sendQueue.put(command)
+		await server.send_data(command)
 
 		if command == 'exit':
 			print("Exiting......")
