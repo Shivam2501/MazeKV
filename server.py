@@ -149,7 +149,7 @@ class Server:
 				await self.loop.sock_sendall(client, struct.pack('>I', len(msg)) + msg)
 
 		client.close()
-		del self.connections[addr]
+		#del self.connections[addr]
 		print('Connection Closed: {}'.format(addr))
 
 class ServerRequestHandlers:
