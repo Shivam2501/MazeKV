@@ -119,7 +119,8 @@ class Server:
 				break	#connecion closed
 			
 			lengthBuffer = struct.unpack('>I', data)[0]
-			msg = pickle.loads(conn.recv(data))
+			buf = await self.loop.sock_recv(client, lengthBuffer)
+			msg = pickle.loads(buf)
 
 			#if it is a response to SET and GET
 			if msg.type == "ACK" and self.ack.is_set() is False:
