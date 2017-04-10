@@ -48,9 +48,9 @@ class Server:
 				    s = False
 				    continue
 				self.connections.append(s)
-				#self.loop.create_task(self.receive_data(s))
+				self.loop.ensure_future(self.receive_data(s))
 
-	async def send_data(self, message):
+	def send_data(self, message):
 		for client in self.connections:
 			self.loop.sock_sendall(client, message)
 
