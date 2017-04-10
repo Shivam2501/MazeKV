@@ -94,6 +94,17 @@ class Server:
 			for i in range(predecessor+1, nodeNumber+1):
 				self.ring[i] = successor
 
+		#balance storage
+		if successor == self.hostNumber:
+			#put all the data in replica of nodenumber into its own data
+			if self.hostNumber not in self.storage:
+				self.storage[self.hostNumber] = {}
+			if nodeNumber in self.storage:
+				self.storage[self.hostNumber] = {**self.storage.pop(self.hostNumber), **self.storage.pop(nodeNumber)}
+
+		if predecessor == self.hostNumber:
+			if nodeNumber in self.storage:
+				self.storage[successor] = self.storage.pop(nodeNumber)
 
 	async def receive_connections(self):
 		while True:
