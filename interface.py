@@ -19,8 +19,6 @@ async def interface(loop):
 	inputSymbol = '>>> '
 	loop.add_reader(sys.stdin, addToQueue)
 
-	# asyncio.ensure_future(addToQueue(loop))
-
 	while True:
 		print(inputSymbol, end='', flush=True)
 		command = await inputMessage(loop)
