@@ -60,7 +60,7 @@ class Server:
 			else:
 				successor += 1
 				if successor > 10:
-					successor = 10
+					successor = 1
 				if successor == node:
 					break
 
