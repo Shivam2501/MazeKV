@@ -192,6 +192,7 @@ class Server:
 		client.close()
 		del self.connections[addr]
 		self.deleteRing(socket.gethostbyaddr(addr)[0])
+		print(self.ring)
 		print('Connection Closed: {}'.format(addr))
 
 class ServerRequestHandlers:
