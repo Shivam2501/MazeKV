@@ -100,7 +100,7 @@ class Server:
 			await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 
 			#wait for a response until a timeout and then try again
-			try
+			try:
 				await asyncio.wait_for(self.ack.wait(), 2.0)
 				#check if the request was successfully completed
 				if self.ack.is_set():
