@@ -22,7 +22,7 @@ class Server:
 		self.sock.listen(len(self.hostnames)-1)
 
 		self.loop.create_task(self.receive_connections())
-		self.loop.run_until_complete(self.create_connection())
+		self.loop.create_task(self.create_connection())
 
 	async def receive_connections(self):
 		while True:
@@ -40,11 +40,12 @@ class Server:
 				except socket.error as msg:
 					continue
 				# Try to establish connection with a host
-				try:
-					s.connect((socket.gethostbyname(host), self.PORT))
-				except socket.error as msg:
-				    s.close()
-				    continue
+				await self.loop.sock_connect(s, (socket.gethostbyname(host), self.PORT))
+				# try:
+				# 	s.connect((socket.gethostbyname(host), self.PORT))
+				# except socket.error as msg:
+				#     s.close()
+				#     continue
 				self.connections.append(s)
 				self.loop.create_task(self.receive_data(s))
 
