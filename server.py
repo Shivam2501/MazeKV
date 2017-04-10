@@ -127,7 +127,7 @@ class Server:
 
 			#if it is a response to SET and GET
 			if msg.type == "ACK" and self.ack.is_set() is False:
-				print(msg.key + msg.value, flush=True)
+				print("{} {}".format(msg.key, msg.value), flush=True)
 				self.ack.set()
 
 			elif msg.type == "SET":
