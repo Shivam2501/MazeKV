@@ -26,9 +26,6 @@ class Server:
 		self.hostNumber = int(hostname[3].split('.')[0])
 		self.ring = {i:self.hostNumber for i in range(1,11)}
 
-		self.successor = None
-		self.predecessor = None
-
 		self.sock = socket.socket()
 		self.sock.setblocking(False)
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -41,9 +38,8 @@ class Server:
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
 
-	def addRing(self, node):
-		nodeNumber = int(node.split('-')[3].split('.')[0])
-		predecessor = nodeNumber - 1
+	def find_predecessor(self, node):
+		predecessor = node - 1
 		while True:
 			if predecessor in self.ring.values():
 				break
@@ -51,8 +47,28 @@ class Server:
 				predecessor -= 1
 				if predecessor <= 0:
 					predecessor = 10
-				if predecessor == nodeNumber:
+				if predecessor == node:
 					break
+		return predecessor
+
+	def find_successor(self, node):
+		successor = node + 1
+
+		while True:
+			if successor in self.ring.values():
+				break
+			else:
+				successor += 1
+				if successor > 10:
+					successor = 10
+				if successor == node:
+					break
+
+		return successor
+
+	def addRing(self, node):
+		nodeNumber = int(node.split('-')[3].split('.')[0])
+		predecessor = self.find_predecessor(nodeNumber)
 		#update ring
 		if nodeNumber < predecessor:
 			for i in range(predecessor+1, 11):
@@ -62,6 +78,22 @@ class Server:
 		else:
 			for i in range(predecessor+1, nodeNumber+1):
 				self.ring[i] = nodeNumber
+
+	def deleteRing(self, node):
+		nodeNumber = int(node.split('-')[3].split('.')[0])
+		successor = find_successor(nodeNumber)
+		predecessor = find_predecessor(nodeNumber)
+
+		#update ring
+		if nodeNumber < predecessor:
+			for i in range(predecessor+1, 11):
+				self.ring[i] = successor
+			for i in range(1, nodeNumber+1):
+				self.ring[i] = successor
+		else:
+			for i in range(predecessor+1, nodeNumber+1):
+				self.ring[i] = successor
+
 
 	async def receive_connections(self):
 		while True:
@@ -94,10 +126,16 @@ class Server:
 	async def send_data(self, messageObj):
 		while True:
 			self.ack.clear()
-			#send data to the owner of the key
-			host = self.hostnames[messageObj.owner - 1]
-			msg = pickle.dumps(messageObj)
-			await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+
+			while True:
+				#send data to the owner of the key
+				host = self.hostnames[messageObj.owner - 1]
+				msg = pickle.dumps(messageObj)
+				try:
+					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					break
+				except OSError as oe:
+					messageObj.findOwner(self)
 
 			#wait for a response until a timeout and then try again
 			try:
@@ -149,7 +187,8 @@ class Server:
 				await self.loop.sock_sendall(client, struct.pack('>I', len(msg)) + msg)
 
 		client.close()
-		#del self.connections[addr]
+		del self.connections[addr]
+		self.deleteRing(socket.gethostbyaddr(addr)[0])
 		print('Connection Closed: {}'.format(addr))
 
 class ServerRequestHandlers:
@@ -162,7 +201,9 @@ class ServerRequestHandlers:
 
 		# #if owner send to replicas
 		# if messageObj.owner == server.hostNumber:
-		# 	if server.successor:
+		# 	successor = server.find_successor(messageObj.owner)
+
+		# 	predecessor = server.find_predecessor(messageObj.owner)
 
 	async def handle_GET(self, messageObj, server):
 		#find the key and return
