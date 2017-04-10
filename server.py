@@ -209,7 +209,7 @@ class ServerRequestHandlers:
 				successor = server.find_successor(messageObj.owner)
 				host = server.hostnames[successor - 1]
 				try:
-					await server.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 					break
 				except OSError as oe:
 					messageObj.findOwner(server)
@@ -218,7 +218,7 @@ class ServerRequestHandlers:
 				predecessor = server.find_predecessor(messageObj.owner)
 				host = server.hostnames[predecessor - 1]
 				try:
-					await server.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 					break
 				except OSError as oe:
 					messageObj.findOwner(server)
