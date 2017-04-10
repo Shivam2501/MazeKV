@@ -13,7 +13,8 @@ env.user = "bharuka2"
 
 def clone():
 	with cd('~'):
-		run('git clone https://bharuka2@gitlab.engr.illinois.edu/bharuka2/distributed_mp2.git')
+		run('rm -rf distributed_mp2')
+		run('git clone git@gitlab.engr.illinois.edu:bharuka2/distributed_mp2.git')
 
 def deploy():
 	with cd('/home/bharuka2/distributed_mp2'):

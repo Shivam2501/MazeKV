@@ -48,7 +48,7 @@ class Server:
 				    s = False
 				    continue
 				self.connections.append(s)
-				self.loop.ensure_future(self.receive_data(s))
+				self.asyncio.ensure_future(self.receive_data(s))
 
 	def send_data(self, message):
 		for client in self.connections:
