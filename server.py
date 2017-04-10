@@ -81,8 +81,8 @@ class Server:
 
 	def deleteRing(self, node):
 		nodeNumber = int(node.split('-')[3].split('.')[0])
-		successor = find_successor(nodeNumber)
-		predecessor = find_predecessor(nodeNumber)
+		successor = self.find_successor(nodeNumber)
+		predecessor = self.find_predecessor(nodeNumber)
 
 		#update ring
 		if nodeNumber < predecessor:
