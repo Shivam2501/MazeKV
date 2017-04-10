@@ -30,6 +30,7 @@ class Server:
 			client.setblocking(False)
 			self.connections[addr[0]] = client
 			print('\nNew Connection: {}'.format(addr[0]))
+			print('\n>>> ')
 			self.loop.create_task(self.receive_data(client, addr[0]))
 
 	async def create_connection(self):
@@ -59,10 +60,11 @@ class Server:
 			data = await self.loop.sock_recv(client, 1024)
 			if not data:
 				break	#connecion closed
-			print(data)
+			print('\n'+data)
 		client.close()
 		del self.connections[addr]
 		print('\nConnection Closed: {}'.format(addr))
+		print('\n>>> ')
 
 # if __name__ == "__main__":
 # 	loop = asyncio.get_event_loop()
