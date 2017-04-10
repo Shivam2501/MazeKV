@@ -45,7 +45,7 @@ class Server:
 		nodeNumber = int(node.split('-')[3].split('.')[0])
 		predecessor = nodeNumber - 1
 		while True:
-			if predecessor in server.ring.values():
+			if predecessor in self.ring.values():
 				break
 			else:
 				predecessor -= 1
