@@ -24,7 +24,7 @@ class Server:
 
 		hostname = socket.gethostname().split('-')
 		self.hostNumber = int(hostname[3].split('.')[0])
-		self.ring = {i:self.hostNumber for i in range(1,11)}
+		self.ring = {i:self.hostNumber for i in range(0,10)}
 
 		self.sock = socket.socket()
 		self.sock.setblocking(False)
@@ -71,12 +71,12 @@ class Server:
 		predecessor = self.find_predecessor(nodeNumber)
 		#update ring
 		if nodeNumber < predecessor:
-			for i in range(predecessor+1, 11):
+			for i in range(predecessor, 10):
 				self.ring[i] = nodeNumber
-			for i in range(1, nodeNumber+1):
+			for i in range(0, nodeNumber):
 				self.ring[i] = nodeNumber
 		else:
-			for i in range(predecessor+1, nodeNumber+1):
+			for i in range(predecessor, nodeNumber):
 				self.ring[i] = nodeNumber
 
 	def deleteRing(self, node):
@@ -86,12 +86,12 @@ class Server:
 
 		#update ring
 		if nodeNumber < predecessor:
-			for i in range(predecessor+1, 11):
+			for i in range(predecessor, 10):
 				self.ring[i] = successor
-			for i in range(1, nodeNumber+1):
+			for i in range(0, nodeNumber):
 				self.ring[i] = successor
 		else:
-			for i in range(predecessor+1, nodeNumber+1):
+			for i in range(predecessor, nodeNumber):
 				self.ring[i] = successor
 
 		#balance storage
