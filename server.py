@@ -170,8 +170,11 @@ class Server:
 
 			elif msg.type == "SET":
 				await getattr(self.serverRPC, 'handle_{}'.format(msg.type))(msg, self)
-				#create an ACK msg with msg = 'SET OK' and send it back
-				msgObj = InputMessage('ACK SET OK')
+				if msgObj.owner == self.hostNumber:
+					#create an ACK msg with msg = 'SET OK' and send it back
+					msgObj = InputMessage('ACK SET OK')
+				else:
+					msgObj = InputMessage('REPLICA ACK')
 				msg = pickle.dumps(msgObj)
 				await self.loop.sock_sendall(client, struct.pack('>I', len(msg)) + msg)
 
@@ -199,11 +202,26 @@ class ServerRequestHandlers:
 			server.storage[messageObj.owner] = {}
 		server.storage[messageObj.owner][messageObj.key] = messageObj.value
 
-		# #if owner send to replicas
-		# if messageObj.owner == server.hostNumber:
-		# 	successor = server.find_successor(messageObj.owner)
+		#if owner send to replicas
+		if messageObj.owner == server.hostNumber:
+			msg = pickle.dumps(messageObj)
+			while True:
+				successor = server.find_successor(messageObj.owner)
+				host = self.hostnames[successor - 1]
+				try:
+					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					break
+				except OSError as oe:
+					messageObj.findOwner(self)
 
-		# 	predecessor = server.find_predecessor(messageObj.owner)
+			while True:
+				predecessor = server.find_predecessor(messageObj.owner)
+				host = self.hostnames[predecessor - 1]
+				try:
+					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					break
+				except OSError as oe:
+					messageObj.findOwner(self)
 
 	async def handle_GET(self, messageObj, server):
 		#find the key and return
