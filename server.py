@@ -52,7 +52,7 @@ class Server:
 
 	async def send_data(self, message):
 		for client in self.connections:
-			self.loop.sock_sendall(client, message)
+			self.loop.sock_sendall(client, message.encode('utf8'))
 
 	async def receive_data(self, client, addr):
 		while True:
