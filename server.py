@@ -38,7 +38,7 @@ class Server:
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
 
-	# def stabilization(self):
+	# async def stabilization(self):
 
 	# 	#send my data to successor and predecessor
 	# 	if self.hostNumber in self.storage:
@@ -128,10 +128,9 @@ class Server:
 
 			host = self.hostnames[nodeNumber - 1]
 			try:
-				await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-				break
+				self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 			except OSError as oe:
-				continue
+				pass
 
 		if predecessor == self.hostNumber: #predecessor
 			if successor in self.storage:
