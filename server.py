@@ -54,13 +54,13 @@ class Server:
 				except OSError as oe:
 					pass
 
-			while True:
-				predecessor = self.find_predecessor(self.hostNumber)
-				host = self.hostnames[predecessor - 1]
-				try:
-					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-				except OSError as oe:
-					pass
+			# while True:
+			# 	predecessor = self.find_predecessor(self.hostNumber)
+			# 	host = self.hostnames[predecessor - 1]
+			# 	try:
+			# 		self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+			# 	except OSError as oe:
+			# 		pass
 
 	def find_predecessor(self, node):
 		predecessor = node - 1
@@ -108,27 +108,27 @@ class Server:
 			return
 
 		#balance storage
-		if successor == self.hostNumber: #successor
-			if predecessor in self.storage:
-				self.storage[nodeNumber] = self.storage.pop(predecessor)
-			#send keys
-			transfer_keys = []
-			if nodeNumber < predecessor:
-				for i in range(predecessor+1, 10):
-					transfer_keys.append(i)
-				for i in range(0, nodeNumber+1):
-					transfer_keys.append(i)
-			else:
-				for i in range(predecessor+1, nodeNumber+1):
-					transfer_keys.append(i)
+		transfer_keys = []
+		if nodeNumber < predecessor:
+			for i in range(predecessor+1, 10):
+				transfer_keys.append(i)
+			for i in range(0, nodeNumber+1):
+				transfer_keys.append(i)
+		else:
+			for i in range(predecessor+1, nodeNumber+1):
+				transfer_keys.append(i)
 
-			msg = {}
-			if successor in self.storage:
-				for key, value in self.storage[successor].items():
-					h = hashlib.md5(key.encode()).hexdigest()
-					ind = int(h, base=16) % 10
-					if ind+1 in transfer_keys:
-						msg[key] = value
+		msg = {}
+		if successor in self.storage:
+			for key, value in self.storage[successor].items():
+				h = hashlib.md5(key.encode()).hexdigest()
+				ind = int(h, base=16) % 10
+				if ind+1 in transfer_keys:
+					msg[key] = value
+		if successor == self.hostNumber: #successor
+			# if predecessor in self.storage:
+			# 	self.storage[nodeNumber] = self.storage.pop(predecessor)
+			#send keys
 
 			if msg:
 				msgObj = StabilizeData(msg, nodeNumber)
@@ -137,16 +137,32 @@ class Server:
 				host = self.hostnames[nodeNumber - 1]
 				try:
 					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
+					if nodeNumber not in self.storage:
+						self.storage[nodeNumber] = {}
 					for key, value in msg.items():
 						del self.storage[successor][key]	
+						self.storage[nodeNumber][key] = value
+					#send replicas
+					msgObj = StabilizeData(self.storage[successor], successor)
+					new_msg = pickle.dumps(msgObj)
+					host = self.hostnames[successor - 1]
+					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
+					
+					msgObj = StabilizeData(self.storage[predecessor], predecessor)
+					new_msg = pickle.dumps(msgObj)
+					host = self.hostnames[predecessor - 1]
+					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
+					
 				except OSError as oe:
 					pass
 
+			if predecessor in self.storage:
+				self.storage.pop(predecessor)
+
 		if predecessor == self.hostNumber: #predecessor
 			if successor in self.storage:
-				self.storage[nodeNumber] = self.storage.pop(successor)
-
-		self.stabilization()
+				self.storage.pop(successor)
+				self.storage[nodeNumber] = msg
 
 	def deleteRing(self, node):
 		nodeNumber = int(node.split('-')[3].split('.')[0])
