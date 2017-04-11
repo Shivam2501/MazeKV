@@ -107,7 +107,6 @@ class Server:
 				self.ring[i] = nodeNumber
 
 		if flag is False:
-			print(self.ring)
 			return
 
 		#balance storage
@@ -125,7 +124,6 @@ class Server:
 				for i in range(predecessor+1, nodeNumber+1):
 					transfer_keys.append(i)
 
-			print(transfer_keys)
 			msg = {}
 			if successor in self.storage:
 				for key, value in self.storage[successor].items():
@@ -175,6 +173,14 @@ class Server:
 
 		if predecessor == self.hostNumber:
 			if nodeNumber in self.storage:
+				msgObj = StabilizeData(self.storage[nodeNumber], successor)
+				new_msg = pickle.dumps(msgObj)
+
+				host = self.hostnames[successor - 1]
+				try:
+					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
+				except OSError as oe:
+					pass
 				self.storage[successor] = self.storage.pop(nodeNumber)
 
 	async def receive_connections(self):

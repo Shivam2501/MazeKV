@@ -24,8 +24,8 @@ class InputMessage:
 
 	def findOwner(self, server):
 		self.owner = server.ring[self.hashkey]
-		print("hash: {} owner: {}".format(self.hashkey, self.owner))
-		
+		#print("hash: {} owner: {}".format(self.hashkey, self.owner))
+
 class StabilizeData:
 
 	def __init__(self, data, owner):
