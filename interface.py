@@ -92,32 +92,6 @@ class ClientRequestHandlers:
 			#send message to owner
 			await server.send_data(messageObj)
 
-		# #return all owners of the key from dictionary
-		# #find successor
-		# successor = messageObj.owner + 1
-		# while True:
-		# 	if successor in server.ring.values():
-		# 		break
-		# 	else:
-		# 		successor += 1
-		# 		if successor > 10:
-		# 			successor = 1
-		# 		if successor == messageObj.owner:
-		# 			break
-		
-		# predecessor = messageObj.owner - 1
-		# while True:
-		# 	if predecessor in server.ring.values():
-		# 		break
-		# 	else:
-		# 		predecessor -= 1
-		# 		if predecessor <= 0:
-		# 			predecessor = 10
-		# 		if predecessor == messageObj.owner:
-		# 			break
-
-		# print('{} {} {}'.format(messageObj.owner, successor, predecessor), flush=True)
-
 	async def handle_LIST_LOCAL(self, messageObj, server):
 		#find all the stored keys and return
 		outputkeys = []

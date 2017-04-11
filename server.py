@@ -21,6 +21,7 @@ class Server:
 		self.storage = {}
 
 		self.ack = asyncio.Event()
+		self.stabilize = asyncio.Event()
 
 		hostname = socket.gethostname().split('-')
 		self.hostNumber = int(hostname[3].split('.')[0])
@@ -79,6 +80,7 @@ class Server:
 			for i in range(predecessor, nodeNumber):
 				self.ring[i] = nodeNumber
 
+		#balance storage
 
 	def deleteRing(self, node):
 		nodeNumber = int(node.split('-')[3].split('.')[0])
@@ -113,7 +115,12 @@ class Server:
 			client.setblocking(False)
 			self.connections[addr[0]] = client
 			print('New Connection: {}'.format(addr[0]))
+
+			await self.stabilize.wait()
+			self.stabilize.clear()
 			self.addRing(socket.gethostbyaddr(addr[0])[0])
+			self.stabilize.set()
+
 			self.loop.create_task(self.receive_data(client, addr[0]))
 
 	async def create_connection(self):
@@ -132,7 +139,12 @@ class Server:
 				    continue
 				s.setblocking(False)
 				self.connections[socket.gethostbyname(host)] = s
+
+				await self.stabilize.wait()
+				self.stabilize.clear()
 				self.addRing(host)
+				self.stabilize.set()
+
 				self.loop.create_task(self.receive_data(s, socket.gethostbyname(host)))
 
 	async def send_data(self, messageObj):
@@ -209,7 +221,12 @@ class Server:
 		client.close()
 		del self.connections[addr]
 		print("OLD RING: {}".format(self.ring))
+
+		await self.stabilize.wait()
+		self.stabilize.clear()
 		self.deleteRing(socket.gethostbyaddr(addr)[0])
+		self.stabilize.set()
+		
 		print("NEW RING: {}".format(self.ring))
 		print('Connection Closed: {}'.format(addr))
 
