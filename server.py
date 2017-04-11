@@ -113,7 +113,7 @@ class Server:
 			#send keys
 			transfer_keys = []
 			if nodeNumber < predecessor:
-				for i in range(predecessor+1, 11):
+				for i in range(predecessor+1, 10):
 					transfer_keys.append(i)
 				for i in range(0, nodeNumber+1):
 					transfer_keys.append(i)
