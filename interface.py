@@ -15,6 +15,7 @@ async def interface(loop):
 	server = Server(loop)
 	clientRPC = ClientRequestHandlers()
 
+	valid_commands = ['SET', 'GET', 'OWNERS', 'LIST_LOCAL', 'BATCH']
 	#inputSymbol = '>>> '
 	loop.add_reader(sys.stdin, addToQueue)
 
@@ -26,6 +27,10 @@ async def interface(loop):
 			print("Exiting......")
 			break
 
+		if command not in valid_commands:
+			print('INVALID COMMAND!', file=sys.stderr)
+			continue
+		
 		#check if BATCH command
 		if command.split(' ')[0] == "BATCH":
 			file1 = command.split(' ')[1]
