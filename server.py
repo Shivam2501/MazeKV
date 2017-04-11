@@ -134,8 +134,7 @@ class Server:
 				try:
 					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
 					for key, value in msg.items():
-						del self.storage[successor][key]
-						
+						del self.storage[successor][key]	
 				except OSError as oe:
 					pass
 
