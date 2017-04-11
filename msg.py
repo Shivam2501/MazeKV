@@ -24,3 +24,10 @@ class InputMessage:
 
 	def findOwner(self, server):
 		self.owner = server.ring[self.hashkey]
+
+class StabilizeData:
+
+	def __init__(self, data, owner):
+		self.type = "STABILIZE"
+		self.data = data
+		self.owner = owner

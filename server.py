@@ -3,7 +3,7 @@ import asyncio
 import pickle
 import struct
 from struct import *
-from msg import InputMessage
+from msg import InputMessage, StabilizeData
 
 class Server:
 
@@ -37,6 +37,31 @@ class Server:
 
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
+
+	def stabilization(self):
+
+		#send my data to successor and predecessor
+		if self.hostNumber in self.storage:
+			msgObj = StabilizeData(self.storage[self.hostNumber], self.hostNumber)
+
+			msg = pickle.dumps(msgObj)
+			while True:
+				successor = self.find_successor(self.hostNumber)
+				host = self.hostnames[successor - 1]
+				try:
+					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					break
+				except OSError as oe:
+					continue
+
+			while True:
+				predecessor = self.find_predecessor(self.hostNumber)
+				host = self.hostnames[predecessor - 1]
+				try:
+					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+					break
+				except OSError as oe:
+					continue
 
 	def find_predecessor(self, node):
 		predecessor = node - 1
@@ -84,6 +109,30 @@ class Server:
 		if successor == self.hostNumber: #successor
 			if predecessor in self.storage:
 				self.storage[nodeNumber] = self.storage.pop(predecessor)
+			#send keys
+			transfer_keys = []
+			if nodeNumber > successor:
+				for i in range(nodeNumber, 11):
+					transfer_keys.append(i)
+			for i in range(nodeNumber, successor):
+				transfer_keys.append(i)
+
+			msg = {}
+			if successor in self.storage:
+				for key, value in self.storage[successor]:
+					if key in transfer_keys:
+						msg[key] = value
+
+			msgObj = StabilizeData(msg, nodeNumber)
+			msg = pickle.dumps(msgObj)
+
+			host = self.hostnames[nodeNumber - 1]
+			try:
+				await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+				break
+			except OSError as oe:
+				continue
+
 		if predecessor == self.hostNumber: #predecessor
 			if successor in self.storage:
 				self.storage[nodeNumber] = self.storage.pop(successor)
@@ -201,8 +250,8 @@ class Server:
 					msgObj = InputMessage('ACK FOUND: ' + value)
 				else:
 					msgObj = InputMessage('ACK NOT FOUND')
-				msg = pickle.dumps(msgObj)
-				await self.loop.sock_sendall(client, struct.pack('>I', len(msg)) + msg)
+				new_msg = pickle.dumps(msgObj)
+				await self.loop.sock_sendall(client, struct.pack('>I', len(new_msg)) + new_msg)
 			elif msg.type == "OWNERS":
 				value = await getattr(self.serverRPC, 'handle_{}'.format(msg.type))(msg, self)
 
@@ -211,9 +260,10 @@ class Server:
 					msgObj = InputMessage('ACK {}'.format(value))
 				else:
 					msgObj = InputMessage('ACK NOT FOUND')
-				msg = pickle.dumps(msgObj)
-				await self.loop.sock_sendall(client, struct.pack('>I', len(msg)) + msg)
-
+				new_msg = pickle.dumps(msgObj)
+				await self.loop.sock_sendall(client, struct.pack('>I', len(new_msg)) + new_msg)
+			elif msg.type == "STABILIZE":
+				self.storage[msg.owner] = msg.data
 		client.close()
 		del self.connections[addr]
 		print("OLD RING: {}".format(self.ring))
@@ -239,7 +289,7 @@ class ServerRequestHandlers:
 					await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 					break
 				except OSError as oe:
-					messageObj.findOwner(server)
+					continue
 
 			while True:
 				predecessor = server.find_predecessor(messageObj.owner)
@@ -248,7 +298,7 @@ class ServerRequestHandlers:
 					await server.loop.sock_sendall(server.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
 					break
 				except OSError as oe:
-					messageObj.findOwner(server)
+					continue
 
 	async def handle_GET(self, messageObj, server):
 		#find the key and return
