@@ -79,6 +79,7 @@ class Server:
 			for i in range(predecessor, nodeNumber):
 				self.ring[i] = nodeNumber
 
+
 	def deleteRing(self, node):
 		nodeNumber = int(node.split('-')[3].split('.')[0])
 		successor = self.find_successor(nodeNumber)

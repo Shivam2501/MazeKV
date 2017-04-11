@@ -120,7 +120,11 @@ class ClientRequestHandlers:
 
 	async def handle_LIST_LOCAL(self, messageObj, server):
 		#find all the stored keys and return
+		outputkeys = []
 		for host in server.storage.values():
 			for key in host.keys():
-				print(key, flush=True)
+				outputkeys.append(key)
+
+		for key in outputkeys.sorted():
+			print(key, flush=True)
 		print('END LIST', flush=True)
