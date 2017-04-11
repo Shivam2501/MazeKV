@@ -118,6 +118,7 @@ class Server:
 			for i in range(nodeNumber, successor):
 				transfer_keys.append(i)
 
+			print("KEYS: {}".format(transfer_keys))
 			msg = {}
 			if successor in self.storage:
 				for key, value in self.storage[successor].items():
