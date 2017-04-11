@@ -131,7 +131,7 @@ class Server:
 				for key, value in self.storage[successor].items():
 					h = hashlib.md5(key.encode()).hexdigest()
 					ind = int(h, base=16) % 10
-					if ind in transfer_keys:
+					if ind+1 in transfer_keys:
 						msg[key] = value
 
 			if msg:
