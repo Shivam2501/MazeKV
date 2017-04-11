@@ -27,7 +27,7 @@ async def interface(loop):
 			print("Exiting......")
 			break
 
-		if command not in valid_commands:
+		if command.split(' ')[0] not in valid_commands:
 			print('INVALID COMMAND!', file=sys.stderr)
 			continue
 		
