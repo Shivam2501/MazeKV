@@ -21,7 +21,7 @@ class Server:
 		self.storage = {}
 
 		self.ack = asyncio.Event()
-		
+
 		hostname = socket.gethostname().split('-')
 		self.hostNumber = int(hostname[3].split('.')[0])
 		self.ring = {i:self.hostNumber for i in range(0,10)}
@@ -68,6 +68,7 @@ class Server:
 
 	def addRing(self, node):
 		nodeNumber = int(node.split('-')[3].split('.')[0])
+		successor = self.find_successor(nodeNumber)
 		predecessor = self.find_predecessor(nodeNumber)
 		#update ring
 		if nodeNumber < predecessor:
@@ -80,7 +81,13 @@ class Server:
 				self.ring[i] = nodeNumber
 
 		#balance storage
-		
+		if successor == self.hostNumber:
+			if predecessor in self.storage:
+				self.storage[nodeNumber] = self.storage.pop(predecessor)
+		if predecessor == self.hostNumber:
+			if successor in self.storage:
+				self.storage[nodeNumber] = self.storage.pop(successor)
+
 	def deleteRing(self, node):
 		nodeNumber = int(node.split('-')[3].split('.')[0])
 		successor = self.find_successor(nodeNumber)
