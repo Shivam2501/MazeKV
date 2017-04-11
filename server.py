@@ -107,8 +107,9 @@ class Server:
 				self.ring[i] = nodeNumber
 
 		if flag is False:
+			print(self.ring)
 			return
-			
+
 		#balance storage
 		if successor == self.hostNumber: #successor
 			if predecessor in self.storage:

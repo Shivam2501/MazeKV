@@ -23,9 +23,9 @@ class InputMessage:
 		self.hashkey = int(h, base=16) % 10
 
 	def findOwner(self, server):
-		print(self.hashkey)
 		self.owner = server.ring[self.hashkey]
-
+		print("hash: {} owner: {}".format(self.hashkey, self.owner))
+		
 class StabilizeData:
 
 	def __init__(self, data, owner):
