@@ -4,6 +4,7 @@ import pickle
 import struct
 from struct import *
 from msg import InputMessage, StabilizeData
+import hashlib
 
 class Server:
 
@@ -120,7 +121,9 @@ class Server:
 			msg = {}
 			if successor in self.storage:
 				for key, value in self.storage[successor].items():
-					if key in transfer_keys:
+					h = hashlib.md5(key.encode()).hexdigest()
+					ind = int(h, base=16) % 10
+					if ind in transfer_keys:
 						msg[key] = value
 
 			msgObj = StabilizeData(msg, nodeNumber)
