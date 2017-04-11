@@ -202,7 +202,7 @@ class Server:
 					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
 				except OSError as oe:
 					pass
-					
+
 	async def receive_connections(self):
 		while True:
 			client, addr = await self.loop.sock_accept(self.sock)
