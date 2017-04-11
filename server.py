@@ -128,16 +128,14 @@ class Server:
 
 			if msg:
 				msgObj = StabilizeData(msg, nodeNumber)
-				msg = pickle.dumps(msgObj)
+				new_msg = pickle.dumps(msgObj)
 
 				host = self.hostnames[nodeNumber - 1]
 				try:
-					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-					for key, value in self.storage[successor].items():
-						h = hashlib.md5(key.encode()).hexdigest()
-						ind = int(h, base=16) % 10
-						if ind in transfer_keys:
-							del self.storage[successor][key]
+					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
+					for key, value in msg.items():
+						del self.storage[successor][key]
+						
 				except OSError as oe:
 					pass
 
