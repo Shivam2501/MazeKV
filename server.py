@@ -92,7 +92,7 @@ class Server:
 
 		return successor
 
-	def addRing(self, node):
+	def addRing(self, node, flag):
 		nodeNumber = int(node.split('-')[3].split('.')[0])
 		successor = self.find_successor(nodeNumber)
 		predecessor = self.find_predecessor(nodeNumber)
@@ -106,6 +106,9 @@ class Server:
 			for i in range(predecessor, nodeNumber):
 				self.ring[i] = nodeNumber
 
+		if flag is False:
+			return
+			
 		#balance storage
 		if successor == self.hostNumber: #successor
 			if predecessor in self.storage:
@@ -179,7 +182,7 @@ class Server:
 			client.setblocking(False)
 			self.connections[addr[0]] = client
 			print('New Connection: {}'.format(addr[0]))
-			self.addRing(socket.gethostbyaddr(addr[0])[0])
+			self.addRing(socket.gethostbyaddr(addr[0])[0], True)
 			self.loop.create_task(self.receive_data(client, addr[0]))
 
 	async def create_connection(self):
@@ -198,7 +201,7 @@ class Server:
 				    continue
 				s.setblocking(False)
 				self.connections[socket.gethostbyname(host)] = s
-				self.addRing(host)
+				self.addRing(host, False)
 				self.loop.create_task(self.receive_data(s, socket.gethostbyname(host)))
 
 	async def send_data(self, messageObj):
