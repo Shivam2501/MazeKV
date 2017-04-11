@@ -299,7 +299,14 @@ class Server:
 				new_msg = pickle.dumps(msgObj)
 				await self.loop.sock_sendall(client, struct.pack('>I', len(new_msg)) + new_msg)
 			elif msg.type == "STABILIZE":
-				self.storage[msg.owner] = msg.data
+				if msg.owner == self.hostNumber:
+					if self.hostNumber in self.storage:
+						for key, value in msg.data.items():
+							self.storage[self.hostNumber][key] = value
+					else:
+						self.storage[self.hostNumber] = msg.data
+				else:	
+					self.storage[msg.owner] = msg.data
 		client.close()
 		del self.connections[addr]
 		#print("OLD RING: {}".format(self.ring))
