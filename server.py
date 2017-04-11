@@ -38,30 +38,30 @@ class Server:
 		self.loop.create_task(self.receive_connections())
 		self.loop.create_task(self.create_connection())
 
-	def stabilization(self):
+	# def stabilization(self):
 
-		#send my data to successor and predecessor
-		if self.hostNumber in self.storage:
-			msgObj = StabilizeData(self.storage[self.hostNumber], self.hostNumber)
+	# 	#send my data to successor and predecessor
+	# 	if self.hostNumber in self.storage:
+	# 		msgObj = StabilizeData(self.storage[self.hostNumber], self.hostNumber)
 
-			msg = pickle.dumps(msgObj)
-			while True:
-				successor = self.find_successor(self.hostNumber)
-				host = self.hostnames[successor - 1]
-				try:
-					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-					break
-				except OSError as oe:
-					continue
+	# 		msg = pickle.dumps(msgObj)
+	# 		while True:
+	# 			successor = self.find_successor(self.hostNumber)
+	# 			host = self.hostnames[successor - 1]
+	# 			try:
+	# 				await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+	# 				break
+	# 			except OSError as oe:
+	# 				continue
 
-			while True:
-				predecessor = self.find_predecessor(self.hostNumber)
-				host = self.hostnames[predecessor - 1]
-				try:
-					await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
-					break
-				except OSError as oe:
-					continue
+	# 		while True:
+	# 			predecessor = self.find_predecessor(self.hostNumber)
+	# 			host = self.hostnames[predecessor - 1]
+	# 			try:
+	# 				await self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(msg)) + msg)
+	# 				break
+	# 			except OSError as oe:
+	# 				continue
 
 	def find_predecessor(self, node):
 		predecessor = node - 1
