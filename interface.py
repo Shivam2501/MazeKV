@@ -125,6 +125,6 @@ class ClientRequestHandlers:
 			for key in host.keys():
 				outputkeys.append(key)
 
-		for key in outputkeys.sorted():
+		for key in sorted(outputkeys):
 			print(key, flush=True)
 		print('END LIST', flush=True)
