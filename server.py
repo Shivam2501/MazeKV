@@ -190,16 +190,19 @@ class Server:
 
 		if predecessor == self.hostNumber:
 			if nodeNumber in self.storage:
-				msgObj = StabilizeData(self.storage[nodeNumber], successor)
+				if predecessor in self.storage:
+					msg = {**self.storage.pop(nodeNumber), **self.storage[predecessor]}
+				else:
+					msg = self.storage.pop(nodeNumber)
+					
+				msgObj = StabilizeData(msg, predecessor)
 				new_msg = pickle.dumps(msgObj)
-
 				host = self.hostnames[successor - 1]
 				try:
 					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
 				except OSError as oe:
 					pass
-				self.storage[successor] = self.storage.pop(nodeNumber)
-
+					
 	async def receive_connections(self):
 		while True:
 			client, addr = await self.loop.sock_accept(self.sock)
