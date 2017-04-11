@@ -81,10 +81,10 @@ class Server:
 				self.ring[i] = nodeNumber
 
 		#balance storage
-		if successor == self.hostNumber:
+		if successor == self.hostNumber: #successor
 			if predecessor in self.storage:
 				self.storage[nodeNumber] = self.storage.pop(predecessor)
-		if predecessor == self.hostNumber:
+		if predecessor == self.hostNumber: #predecessor
 			if successor in self.storage:
 				self.storage[nodeNumber] = self.storage.pop(successor)
 
