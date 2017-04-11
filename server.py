@@ -148,11 +148,12 @@ class Server:
 					host = self.hostnames[nodeNumber - 1]
 					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
 					
-					msgObj = StabilizeData(self.storage[predecessor], predecessor)
-					new_msg = pickle.dumps(msgObj)
-					host = self.hostnames[nodeNumber - 1]
-					self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
-					
+					if predecessor in self.storage:
+						msgObj = StabilizeData(self.storage[predecessor], predecessor)
+						new_msg = pickle.dumps(msgObj)
+						host = self.hostnames[nodeNumber - 1]
+						self.loop.sock_sendall(self.connections[socket.gethostbyname(host)], struct.pack('>I', len(new_msg)) + new_msg)
+						
 				except OSError as oe:
 					pass
 
