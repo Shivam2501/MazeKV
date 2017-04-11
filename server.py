@@ -112,13 +112,15 @@ class Server:
 				self.storage[nodeNumber] = self.storage.pop(predecessor)
 			#send keys
 			transfer_keys = []
-			if nodeNumber > successor:
-				for i in range(nodeNumber, 11):
+			if nodeNumber < predecessor:
+				for i in range(predecessor+1, 11):
 					transfer_keys.append(i)
-			for i in range(nodeNumber, successor):
-				transfer_keys.append(i)
+				for i in range(0, nodeNumber+1):
+					transfer_keys.append(i)
+			else:
+				for i in range(predecessor+1, nodeNumber+1):
+					transfer_keys.append(i)
 
-			print("KEYS: {}".format(transfer_keys))
 			msg = {}
 			if successor in self.storage:
 				for key, value in self.storage[successor].items():
