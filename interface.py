@@ -23,14 +23,14 @@ async def interface(loop):
 		#print(inputSymbol, end='', flush=True)
 		command = await inputMessage(loop)
 		
-		if command == 'exit':
+		if command.lower() == 'exit':
 			print("Exiting......")
 			break
 
 		if command.split(' ')[0] not in valid_commands:
 			print('INVALID COMMAND!', file=sys.stderr)
 			continue
-		
+
 		#check if BATCH command
 		if command.split(' ')[0] == "BATCH":
 			file1 = command.split(' ')[1]
