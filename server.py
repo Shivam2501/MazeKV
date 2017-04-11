@@ -119,7 +119,7 @@ class Server:
 
 			msg = {}
 			if successor in self.storage:
-				for key, value in self.storage[successor]:
+				for key, value in self.storage[successor].items():
 					if key in transfer_keys:
 						msg[key] = value
 
