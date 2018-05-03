@@ -1,4 +1,4 @@
-# ECE 438 Distributed Systems - MP 2
+# MazeKV
 
 Implement a scalable, failure-proof, in-memory key-value store.
 
